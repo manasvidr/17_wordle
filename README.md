@@ -43,6 +43,31 @@ must work for all supported lengths.
 Display a readable history after each accepted guess and provide a final session summary.
 Do not duplicate entries for invalid attempts.
 
+## Fix Summary
+
+- **Task 1:** `evaluate()` marked a guess letter yellow whenever it appeared anywhere in
+  the target, without tracking how many copies were already accounted for by green
+  matches or earlier yellows. A guess with a repeated letter (e.g. "poppy" against
+  "apple") could get more yellow/green marks than the target actually has copies of.
+  Now resolves greens first, then caps yellows by the target's remaining letter counts
+  via `collections.Counter`.
+
+  Demonstrated in the attached videos with target `apple`, guess `poppy` (two P's in
+  the guess, only one spare P in the target after the green match at position 3):
+
+  | | P | O | P | P | Y |
+  |---|---|---|---|---|---|
+  | Before (buggy) | yellow | gray | green | **yellow** | gray |
+  | After (fixed) | yellow | gray | green | **gray** | gray |
+
+  Only one of the two non-green P's should register — the fix makes the 4th letter
+  gray instead of a second false yellow.
+- **Task 2:** invalid-length/non-alpha guesses no longer consume a turn; win/loss/quit
+  are each reported distinctly in the summary.
+- **Task 3:** added 4- and 6-letter word lists; length is chosen at startup.
+- **Task 4:** guess history prints after every accepted guess, plus a final summary;
+  invalid attempts are never added to the history.
+
 ## Required testing
 
 Use repeated-letter cases, exact matches, absent letters, invalid lengths, all three
